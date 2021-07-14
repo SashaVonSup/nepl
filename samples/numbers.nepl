@@ -1,0 +1,17 @@
+integer.1digit? = function() {
+    return(this < 10 && \
+           this >= 0)
+}
+
+print(0.1 + 0.2)
+print('\n')
+print(0.1digit?())
+print(12.34.integer?())
+
+declare(operator1?)
+operator1? += function(x) {
+    if (x.__class__ == integer) {
+        return(x.1digit?)
+    }
+}
+$OPERATOR operator1? $UNARY 10 1?

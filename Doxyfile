@@ -1,0 +1,9 @@
+PROJECT_NAME           = "NEPL"
+
+PROJECT_BRIEF          = "New experimental programming language"
+
+OUTPUT_DIRECTORY       = "docs"
+
+INPUT                  = "interpreter"
+
+EXAMPLE_PATH           = "samples"

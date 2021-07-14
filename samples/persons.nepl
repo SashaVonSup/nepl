@@ -1,0 +1,44 @@
+# Sample program in NEPL (new experimental programming language)
+# sharp is used for comments
+
+Person = class {
+    __init__ = function(name, age) {
+        this.name = name
+        this.age = age
+        this.spouse = None
+        return()  # mark successful result
+    }
+    __init__ += function(name, age, spouse) {  # override constructor using operator +=
+        this.__init__(name, age)
+        this.spouse = spouse
+        return()
+    }
+    
+    younger = function(other) {
+        return(age < other.age)
+    }
+    
+    marry = function(spouse) {
+        this.spouse = spouse
+        spouse.spouse = this
+        return()
+    }
+}
+
+declare(operator<)  # create function 'operator<' if it is absent (for any reason)
+operator< += function(a, b) {  # built-in 'operator<' function is linked with operator <
+    if(a.__class__ == Person) {  # 'if' is built-in class, whose __init__ runs code block if parameter is true
+        return(a.younger(b))
+    }
+    # else there is no return, so other implementations will be called
+}
+
+declare(operator<3)  # use 'declare' always for global functions to allow libraries use the same name
+operator<3 += function(a, b) {  # use operator += always after using 'declare'
+    if(a.__class__ == Person && b.__class__ == Person) {
+        a.marry(b)
+        return()
+    }
+}
+
+$OPERATOR operator<3 10 <3  # this compiler directive links the function with operator <3 with precedence of 10

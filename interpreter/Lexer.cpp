@@ -2,10 +2,10 @@
 
 #include <utility>
 #include <regex>
-#include "common.h"
+#include <map>
 
 namespace nepl {
-    Lexer::Lexer(std::istream &source) : source(source), line(0u), curChar() {
+    Lexer::Lexer(std::istream &source) : line(0u), curChar(), source(source) {
         nextChar();
     }
 
@@ -15,9 +15,9 @@ namespace nepl {
 
     std::vector<Token> Lexer::getTokens() {
         std::vector<Token> res;
-        while (source)
+        while (!source.eof())
             res.push_back(nextToken());
-        return std::move(res);
+        return res;
     }
 
     Token Lexer::tokenize(const std::string &text) const {
@@ -55,8 +55,13 @@ namespace nepl {
                 while (nextChar() != quote) {
                     if (curChar == '\\') {
                         static std::map<char, char> ESCAPE_SEQUENCES = {
-                                {'a', '\a'}, {'b', '\b'}, {'f', '\f'}, {'n', '\n'},
-                                {'r', '\r'}, {'t', '\t'}, {'v', '\v'}
+                                {'a', '\a'},
+                                {'b', '\b'},
+                                {'f', '\f'},
+                                {'n', '\n'},
+                                {'r', '\r'},
+                                {'t', '\t'},
+                                {'v', '\v'}
                         };
                         string.push_back(ESCAPE_SEQUENCES.contains(nextChar()) ? ESCAPE_SEQUENCES[curChar] : curChar);
                     } else {

@@ -6,6 +6,7 @@
 #define NEPL_COMMON_H
 
 #include <gmpxx.h>
+#include <string>
 #include <exception>
 
 namespace nepl {

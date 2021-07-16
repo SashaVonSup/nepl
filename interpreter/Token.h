@@ -6,7 +6,6 @@
 #define NEPL_TOKEN_H
 
 #include <variant>
-#include <string>
 #include "common.h"
 
 namespace nepl {

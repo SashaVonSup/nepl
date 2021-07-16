@@ -5,6 +5,7 @@
 #ifndef NEPL_LEXER_H
 #define NEPL_LEXER_H
 
+#include <iostream>
 #include <vector>
 #include "Token.h"
 

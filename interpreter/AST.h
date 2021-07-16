@@ -7,11 +7,13 @@
 
 #include <variant>
 #include <memory>
+#include <vector>
 #include "common.h"
 
 namespace nepl {
     /// Basic structure for a node of AST (abstract syntax tree)
-    struct AstNode {};
+    struct AstNode {
+    };
 
     /// Value of literal
     using LiteralValue = std::variant<Integer, Float, std::string>;

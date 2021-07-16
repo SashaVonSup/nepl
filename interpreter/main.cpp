@@ -1,4 +1,3 @@
-#include <iostream>
 #include <fstream>
 #include <boost/program_options.hpp>
 
@@ -22,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     if (vm.count("source")) {
         std::ifstream source(vm["source"].as<std::string>());
-        if (!source) {
+        if (source.fail()) {
             std::cerr << "File \"" << vm["source"].as<std::string>() << "\" not available!\n";
             return EXIT_FAILURE;
         }
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]) {
         nepl::Lexer lexer(source);
 
         std::cout << "Found tokens:\n";
-        while (lexer.source)
+        while (!lexer.source.eof())
             std::cout << lexer.nextToken() << '\n';
     } else {
         std::cerr << "No input files specified. Use --help or -h to see help.\n";

@@ -4,6 +4,8 @@ PROJECT_BRIEF          = "New experimental programming language"
 
 OUTPUT_DIRECTORY       = "docs"
 
-INPUT                  = "interpreter"
+INPUT                  = interpreter/ README.md
 
 EXAMPLE_PATH           = "samples"
+
+USE_MDFILE_AS_MAINPAGE = README.md

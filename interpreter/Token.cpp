@@ -3,6 +3,19 @@
 #include <utility>
 #include <iostream>
 
+std::ostream &operator<<(std::ostream &os, const TokenValue &value) {
+    switch (value.index()) {
+        case 0:
+            return os << get<0>(value);
+        case 1:
+            return os << get<1>(value);
+        case 2:
+            return os << get<2>(value);
+        default:
+            return os; //unexpected
+    }
+}
+
 namespace nepl {
     std::ostream &operator<<(std::ostream &os, const TokenType &type) {
         static const char *TOKEN_TYPES[] = {
@@ -13,17 +26,8 @@ namespace nepl {
         return os << TOKEN_TYPES[static_cast<unsigned>(type)];
     }
 
-    std::ostream &operator<<(std::ostream &os, const TokenValue &value) {
-        switch (value.index()) {
-            case 0:
-                return os << get<0>(value);
-            case 1:
-                return os << get<1>(value);
-            case 2:
-                return os << get<2>(value);
-            default:
-                return os; //unexpected
-        }
+    TokenType operator+(TokenType type, char add) {
+        return TokenType(static_cast<unsigned char>(type) + add);
     }
 
     Token::Token(TokenType type, TokenValue value, unsigned line) : type(type), value(std::move(value)), line(line) {}

@@ -8,6 +8,11 @@
 #include <variant>
 #include "common.h"
 
+/// Value of Token dictated by TokenType
+using TokenValue = std::variant<std::string, nepl::Integer, nepl::Float, nullptr_t>;
+
+std::ostream &operator<<(std::ostream &os, const TokenValue &value);
+
 namespace nepl {
     /// Type of token
     enum class TokenType : unsigned char {
@@ -21,12 +26,9 @@ namespace nepl {
         OPERATOR, UNOPERATOR,
     };
 
+    TokenType operator+(TokenType type, char add);
+
     std::ostream &operator<<(std::ostream &os, const TokenType &type);
-
-    /// Value of Token dictated by TokenType
-    using TokenValue = std::variant<std::string, Integer, Float, nullptr_t>;
-
-    std::ostream &operator<<(std::ostream &os, const TokenValue &value);
 
     /// Minimal significant piece of code (a word or operator, etc.)
     struct Token {

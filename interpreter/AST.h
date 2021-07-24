@@ -1,5 +1,5 @@
 /** @file
- * @brief Internal header for AstNode structure and its derivatives
+ * @brief Internal header for IAstNode structure and its derivatives
  */
 
 #ifndef NEPL_AST_H
@@ -12,56 +12,71 @@
 
 namespace nepl {
     /// Basic structure for a node of AST (abstract syntax tree)
-    struct AstNode {
+    class IAstNode {
+    public:
+        virtual ~IAstNode() = default;
     };
 
     /// Value of literal
     using LiteralValue = std::variant<Integer, Float, std::string>;
 
     /// AST node for literals
-    struct LiteralAstNode : AstNode {
+    class LiteralAstNode : public IAstNode {
+    protected:
         /// Integer, Float or string
         LiteralValue value;
 
+    public:
         explicit LiteralAstNode(LiteralValue value);
     };
 
     /// AST node for accessing a variable
-    struct NameAstNode : AstNode {
+    class IdentifierAstNode : public IAstNode {
+    protected:
         /// Name of the variable
         std::string name;
 
-        explicit NameAstNode(std::string name);
+    public:
+        explicit IdentifierAstNode(std::string name);
     };
 
     /// AST node for accessing member of an object
-    struct MemberAstNode : AstNode {
+    class MemberAstNode : public IAstNode {
+    protected:
         /// Name of the member
         std::string name;
 
         /// Pointer to the parent object
-        std::unique_ptr<AstNode> parent;
+        std::unique_ptr<IAstNode> parent;
 
-        MemberAstNode(std::string name, std::unique_ptr<AstNode> parent);
+    public:
+        MemberAstNode(std::string name, std::unique_ptr<IAstNode> parent);
     };
 
     /// AST node for function call
-    struct CallAstNode : AstNode {
-        /// List of pointers to arguments
-        std::vector<std::unique_ptr<AstNode>> args;
+    class CallAstNode : public IAstNode {
+    protected:
+        /// Pointer to the function
+        std::unique_ptr<IAstNode> function;
 
-        explicit CallAstNode(std::vector<std::unique_ptr<AstNode>> args);
+        /// List of pointers to arguments
+        std::vector<std::unique_ptr<IAstNode>> args;
+
+    public:
+        CallAstNode(std::unique_ptr<IAstNode> function, std::vector<std::unique_ptr<IAstNode>> args);
     };
 
     /// AST node for accessing item by index
-    struct IndexAstNode : AstNode {
+    class IndexAstNode : public IAstNode {
+    protected:
         /// Pointer to the container object
-        std::unique_ptr<AstNode> container;
+        std::unique_ptr<IAstNode> container;
 
         /// Pointer to the index object
-        std::unique_ptr<AstNode> index;
+        std::unique_ptr<IAstNode> index;
 
-        IndexAstNode(std::unique_ptr<AstNode> container, std::unique_ptr<AstNode> index);
+    public:
+        IndexAstNode(std::unique_ptr<IAstNode> container, std::unique_ptr<IAstNode> index);
     };
 }
 

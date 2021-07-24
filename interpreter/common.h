@@ -29,6 +29,10 @@ namespace nepl {
     public:
         SyntaxError(std::string message, unsigned line);
 
+        template<typename T>
+        SyntaxError(const T &unexpected, unsigned line) :
+                message((std::stringstream() << "unexpected " << unexpected).str()), line(line) {}
+
         template<typename T1, typename T2>
         SyntaxError(const T1 &expected, const T2 &found, unsigned line) :
                 message((std::stringstream() << "expected " << expected << ", found " << found).str()), line(line) {}

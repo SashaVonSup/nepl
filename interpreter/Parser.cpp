@@ -31,8 +31,8 @@ namespace nepl {
         return curToken = lexer.nextToken();
     }
 
-    std::vector<AstNode> Parser::getAstNodes() {
-        std::vector<AstNode> res;
+    std::vector<std::unique_ptr<IAstNode>> Parser::getAstNodes() {
+        std::vector<std::unique_ptr<IAstNode>> res;
         while (!lexer.source.eof())
             res.push_back(nextAstNode());
         return res;
@@ -97,43 +97,75 @@ namespace nepl {
         nextToken(); //TokenType::SEMICOLON
     }
 
-    //TODO: AstNode Parser::parse(std::vector<Token> tokens)
+    std::unique_ptr<CallAstNode> Parser::parseCall(std::unique_ptr<IAstNode> function) {
+        std::vector<std::unique_ptr<IAstNode>> args;
+        while (nextToken().type != TokenType::RIGHT_PARENTHESIS) {
+            args.push_back(parse());
+            if (nextToken().type != TokenType::COMMA)
+                throw SyntaxError("comma", curToken.type, curToken.line);
+        }
+        return std::make_unique<CallAstNode>(std::move(function), std::move(args));
+    }
 
-    AstNode Parser::nextAstNode() {
+    std::unique_ptr<IAstNode> Parser::parse() {
+        std::unique_ptr<IAstNode> node;
+        switch (curToken.type) {
+            case TokenType::IDENTIFIER:
+                node = std::make_unique<IdentifierAstNode>(get<0>(curToken.value));
+                break;
+            case TokenType::STRING:
+                node = std::make_unique<LiteralAstNode>(get<0>(curToken.value));
+                break;
+            case TokenType::INTEGER:
+                node = std::make_unique<LiteralAstNode>(get<1>(curToken.value));
+                break;
+            case TokenType::FLOAT:
+                node = std::make_unique<LiteralAstNode>(get<2>(curToken.value));
+                break;
+            default:
+                throw SyntaxError(curToken.type, curToken.line);
+        }
+
         while (true) {
-            if (curToken.type == TokenType::OPERATOR) {
-                declareOperator();
-            } else if (curToken.type == TokenType::UNOPERATOR) {
-                disableOperator();
+            switch (nextToken().type) {
+                case TokenType::DOT:
+                    if (nextToken().type != TokenType::IDENTIFIER)
+                        throw SyntaxError("member identifier", curToken.type, curToken.line);
+                    node = std::make_unique<MemberAstNode>(get<0>(curToken.value), std::move(node));
+                    break;
+                case TokenType::LEFT_PARENTHESIS:
+                    nextToken();
+                    node = parseCall(std::move(node));
+                    break;
+                case TokenType::LEFT_SQUARE_BRACKET:
+                    nextToken();
+                    node = std::make_unique<IndexAstNode>(std::move(node), parse());
+                    break;
+                default:
+                    return node;
             }
+        }
+    }
 
-            std::vector<Token> tokens;
-            for (std::stack<Token> brackets; curToken.type != TokenType::SEMICOLON || !brackets.empty(); nextToken()) {
-                switch (curToken.type) {
-                    case TokenType::LEFT_PARENTHESIS:
-                    case TokenType::LEFT_SQUARE_BRACKET:
-                    case TokenType::LEFT_BRACE:
-                        brackets.push(curToken);
-                        break;
-                    case TokenType::RIGHT_PARENTHESIS:
-                    case TokenType::RIGHT_SQUARE_BRACKET:
-                    case TokenType::RIGHT_BRACE:
-                        if (brackets.empty())
-                            throw SyntaxError((std::stringstream() << "unexpected " << curToken.type).str(),
-                                              curToken.line);
-                        if (curToken.type == brackets.top().type + 1)
-                            brackets.pop();
-                        else
-                            throw SyntaxError(brackets.top().type + 1, curToken.type, curToken.line);
-                    default:
-                        break;
-                }
-                tokens.push_back(curToken);
+    std::unique_ptr<IAstNode> Parser::nextAstNode() {
+        while (true) {
+            switch (curToken.type) {
+                case TokenType::OPERATOR:
+                    declareOperator();
+                    break;
+                case TokenType::UNOPERATOR:
+                    disableOperator();
+                    break;
+                case TokenType::SEMICOLON:
+                    nextToken();
+                    break;
+                default:
+                    auto node = parse();
+                    if (curToken.type != TokenType::SEMICOLON)
+                        throw SyntaxError(curToken.type, curToken.line);
+                    nextToken(); //TokenType::SEMICOLON
+                    return node;
             }
-
-            if (tokens.empty())
-                continue;
-            return parse(tokens);
         }
     }
 }

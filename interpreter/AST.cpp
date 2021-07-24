@@ -5,13 +5,14 @@
 namespace nepl {
     LiteralAstNode::LiteralAstNode(LiteralValue value) : value(std::move(value)) {}
 
-    NameAstNode::NameAstNode(std::string name) : name(std::move(name)) {}
+    IdentifierAstNode::IdentifierAstNode(std::string name) : name(std::move(name)) {}
 
-    MemberAstNode::MemberAstNode(std::string name, std::unique_ptr<AstNode> parent) :
+    MemberAstNode::MemberAstNode(std::string name, std::unique_ptr<IAstNode> parent) :
             name(std::move(name)), parent(std::move(parent)) {}
 
-    CallAstNode::CallAstNode(std::vector<std::unique_ptr<AstNode>> args) : args(std::move(args)) {}
+    CallAstNode::CallAstNode(std::unique_ptr<IAstNode> function, std::vector<std::unique_ptr<IAstNode>> args) :
+            function(std::move(function)), args(std::move(args)) {}
 
-    IndexAstNode::IndexAstNode(std::unique_ptr<AstNode> container, std::unique_ptr<AstNode> index) :
+    IndexAstNode::IndexAstNode(std::unique_ptr<IAstNode> container, std::unique_ptr<IAstNode> index) :
             container(std::move(container)), index(std::move(index)) {}
 }

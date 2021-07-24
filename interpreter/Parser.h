@@ -66,17 +66,20 @@ namespace nepl {
         /// Parse operator disabling and remove from operators
         void disableOperator();
 
+        /// Parse arguments for function call
+        std::unique_ptr<CallAstNode> parseCall(std::unique_ptr<IAstNode> function);
+
         /// Make an AST node from tokens
-        AstNode parse(std::vector<Token> tokens);
+        std::unique_ptr<IAstNode> parse();
 
     public:
         explicit Parser(Lexer lexer);
 
         /// Get next built tree
-        AstNode nextAstNode();
+        std::unique_ptr<IAstNode> nextAstNode();
 
         /// Result list of built trees
-        std::vector<AstNode> getAstNodes();
+        std::vector<std::unique_ptr<IAstNode>> getAstNodes();
     };
 }
 
